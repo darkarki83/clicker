@@ -120,8 +120,8 @@ def minimize_popup_window(partial_title):
 def extract_main_phone_number():
     print("📋 Копируем текст со страницы...")
 
-    # Можно кликнуть в координаты, где точно есть текст
-    pyautogui.click(x=1000, y=500)  # Настрой координаты!
+    time.sleep(1)
+    pyautogui.click(x=1000, y=400)  # Настрой координаты!
     time.sleep(0.5)
 
     # Теперь эмулируем ввод клавиш с помощью keyboard
@@ -265,8 +265,8 @@ if __name__ == "__main__":
     window_title = "ברוך הבא למרחב העבודה שלך"
     app_window = focus_and_click_center(window_title)
 
-    row_num_start = 1442
-    row_num_end = 1570
+    row_num_start = 1365
+    row_num_end = 1500
 
     if app_window:
         current_row = row_num_start
@@ -283,14 +283,14 @@ if __name__ == "__main__":
                 print("👤 Имя клиента:", client_name)
 
                 click_on_image("client_folder.png")
-                time.sleep(2)
+                time.sleep(1)
                 fill_client_number_by_label_image("client_label.png", client_code)
                 click_first_button("search.png")
 
                 time.sleep(8)
                 minimize_popup_window("360")
-                #time.sleep(2)
-                #focus_and_click_center("פרטי לקוח")
+                time.sleep(1)
+                #Sfocus_and_click_center("פרטי לקוח")
                 number = extract_main_phone_number()
                 time.sleep(1)
                 click_nivut_button("nivut2.png")
