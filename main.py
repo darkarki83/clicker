@@ -122,7 +122,7 @@ def extract_main_phone_number():
 
     time.sleep(1)
     pyautogui.click(x=1000, y=400)  # Настрой координаты!
-    time.sleep(0.5)
+    time.sleep(1)
 
     # Теперь эмулируем ввод клавиш с помощью keyboard
     keyboard.press_and_release('ctrl+a')
@@ -132,7 +132,7 @@ def extract_main_phone_number():
 
     # 🖱️ Кликнем ниже, чтобы снять выделение (на 100 пикселей вниз)
     current_x, current_y = pyautogui.position()
-    pyautogui.click(current_x, current_y + 100)
+    pyautogui.click(x=1000, y=400)
     time.sleep(0.3)
 
     text = pyperclip.paste()
@@ -147,11 +147,10 @@ def extract_main_phone_number():
         print("❌ Номер не найден.")
         return None
 
-def click_nivut_button(image_path="nivut.png", confidence=0.9, timeout=10):
+def click_nivut_button(image_path="nivut.png", confidence=0.9, timeout=5):
     print(f"🧭 Ищем кнопку ניווט по изображению: {image_path}")
-    start_time = time.time()
-
-    while time.time() - start_time < timeout:
+    attempts = 0
+    while attempts < 3:
         try:
             location = pyautogui.locateOnScreen(image_path, confidence=confidence)
             if location:
@@ -160,12 +159,16 @@ def click_nivut_button(image_path="nivut.png", confidence=0.9, timeout=10):
                 pyautogui.click()
                 print("✅ Клик по кнопке ניווט выполнен.")
                 return True
+            else:
+                print(f"🔄 Кнопка ניווט не найдена. Повтор {attempts + 1}/3")
+                time.sleep(1.5)
+                attempts += 1
         except Exception as e:
             print(f"⚠️ Ошибка при поиске кнопки ניווט: {e}")
-        time.sleep(0.5)
-
-    print(f"❌ Кнопка ניווט не найдена за {timeout} сек.")
+            attempts += 1
+    print("❌ Не удалось кликнуть по кнопке ניווט после 3 попыток.")
     return False
+
 
 def get_visible_lines_count():
     print("📋 Считаем количество видимых линий...")
@@ -191,19 +194,31 @@ def get_visible_lines_count():
     print(f"🔢 Найдено {len(phone_matches)} линий.")
     return len(phone_matches)
 
-def click_show_canceled_checkbox(image_path="checkbox_empty.png", confidence=0.9, timeout=10):
+def click_show_canceled_checkbox(image_path="checkbox_empty.png", confidence=0.9, timeout=3):
     print(f"🔍 Ищем чекбокс по изображению: {image_path}")
     start_time = time.time()
+    attempts = 0
 
     while time.time() - start_time < timeout:
         try:
             location = pyautogui.locateOnScreen(image_path, confidence=confidence)
             if location:
                 center = pyautogui.center(location)
+                print(f"📍 Найден чекбокс на координатах: {center}")
                 pyautogui.moveTo(center.x, center.y, duration=0.2)
                 pyautogui.click()
-                print("☑️ Чекбокс нажат.")
-                return True
+                time.sleep(1)  # Подождем, чтобы убедиться, что UI обновился
+
+                # 🔁 Проверим — исчез ли чекбокс (значит, он нажат)
+                if not pyautogui.locateOnScreen(image_path, confidence=confidence):
+                    print("☑️ Чекбокс успешно нажат.")
+                    return True
+                else:
+                    print("↩️ Попробуем нажать ещё раз...")
+                    attempts += 1
+                    if attempts >= 3:
+                        print("❌ Не удалось нажать чекбокс после 3 попыток.")
+                        return False
         except Exception as e:
             print("⚠️ Ошибка при поиске чекбокса:", e)
 
@@ -265,8 +280,8 @@ if __name__ == "__main__":
     window_title = "ברוך הבא למרחב העבודה שלך"
     app_window = focus_and_click_center(window_title)
 
-    row_num_start = 1365
-    row_num_end = 1500
+    row_num_start = 2474
+    row_num_end = 2601
 
     if app_window:
         current_row = row_num_start
@@ -287,8 +302,8 @@ if __name__ == "__main__":
                 fill_client_number_by_label_image("client_label.png", client_code)
                 click_first_button("search.png")
 
-                time.sleep(8)
-                minimize_popup_window("360")
+                #time.sleep(8)
+                #minimize_popup_window("360")
                 time.sleep(1)
                 #Sfocus_and_click_center("פרטי לקוח")
                 number = extract_main_phone_number()
@@ -308,7 +323,7 @@ if __name__ == "__main__":
                     count = total_after - total_before
                     status = ""
 
-                time.sleep(1)
+                time.sleep(2)
                 click_nivut_button("nivut.png")
                 time.sleep(1)
                 click_home_button("home.png")
@@ -320,8 +335,11 @@ if __name__ == "__main__":
 
             except Exception as e:
                 print(f"⚠️ Ошибка при обработке строки {current_row}, пробуем ещё раз...\n{e}")
-                minimize_popup_window("360")
+                #minimize_popup_window("360")
                 click_home_button("home.png")  # 🏠 Попытка вернуть интерфейс в исходное состояние
-                time.sleep(3)
+                time.sleep(1)
+                click_nivut_button("nivut.png")
+                time.sleep(1)
+                click_home_button("home.png")
     else:
         print("⛔ Не удалось получить окно, остановка скрипта.")
