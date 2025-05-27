@@ -30,7 +30,7 @@ def focus_and_click_center(window_title_part):
         time.sleep(0.5)
         win32gui.SetForegroundWindow(hwnd)
         print("📌 Окно выведено на передний план.")
-        time.sleep(1)
+        time.sleep(0.5)
 
         rect = target_window.rectangle()
         center_x = rect.left + rect.width() // 2
@@ -57,7 +57,7 @@ def click_on_image(image_path, confidence=0.8, timeout=10):
             pyautogui.click()
             print(f"✅ Клик по изображению выполнен: {image_path}")
             return True
-        time.sleep(0.5)
+        time.sleep(0.3)
 
     print(f"❌ Изображение не найдено за {timeout} сек: {image_path}")
     return False
@@ -120,15 +120,15 @@ def minimize_popup_window(partial_title):
 def extract_main_phone_number():
     print("📋 Копируем текст со страницы...")
 
-    time.sleep(1)
+    time.sleep(0.3)
     pyautogui.click(x=1000, y=400)  # Настрой координаты!
-    time.sleep(1)
+    time.sleep(0.3)
 
     # Теперь эмулируем ввод клавиш с помощью keyboard
     keyboard.press_and_release('ctrl+a')
-    time.sleep(0.5)
+    time.sleep(0.3)
     keyboard.press_and_release('ctrl+c')
-    time.sleep(0.5)
+    time.sleep(0.3)
 
     # 🖱️ Кликнем ниже, чтобы снять выделение (на 100 пикселей вниз)
     current_x, current_y = pyautogui.position()
@@ -161,7 +161,7 @@ def click_nivut_button(image_path="nivut.png", confidence=0.9, timeout=5):
                 return True
             else:
                 print(f"🔄 Кнопка ניווט не найдена. Повтор {attempts + 1}/3")
-                time.sleep(1.5)
+                time.sleep(1)
                 attempts += 1
         except Exception as e:
             print(f"⚠️ Ошибка при поиске кнопки ניווט: {e}")
@@ -231,11 +231,11 @@ def count_all_lines():
     print("📋 Считаем все уникальные линии (после чекбокса)...")
 
     pyautogui.click(x=1000, y=400)
-    time.sleep(0.4)
+    time.sleep(0.3)
     keyboard.press_and_release('ctrl+a')
-    time.sleep(0.4)
+    time.sleep(0.3)
     keyboard.press_and_release('ctrl+c')
-    time.sleep(0.4)
+    time.sleep(0.3)
     current_x, current_y = pyautogui.position()
     pyautogui.click(current_x, current_y + 100)
     time.sleep(0.3)
@@ -262,7 +262,7 @@ def click_home_button(image_path="home.png", confidence=0.9, timeout=10):
                 return True
         except Exception as e:
             print(f"⚠️ Ошибка при поиске кнопки בית: {e}")
-        time.sleep(0.5)
+        time.sleep(0.4)
 
     print(f"❌ Кнопка בית не найдена за {timeout} сек.")
     return False
@@ -306,7 +306,7 @@ if __name__ == "__main__":
                 #minimize_popup_window("360")
                 time.sleep(1)
                 number = extract_main_phone_number()
-                time.sleep(1)
+                time.sleep(0.4)
                 click_nivut_button("nivut2.png")
 
                 total_before = get_visible_lines_count()
@@ -316,15 +316,15 @@ if __name__ == "__main__":
                     count = 0
                 else:
                     click_show_canceled_checkbox()
-                    time.sleep(2)
+                    time.sleep(0.5)
                     total_after = count_all_lines()
                     print(f"⚠️ total_after {total_after}")
                     count = total_after - total_before
                     status = ""
 
-                time.sleep(2)
+                time.sleep(0.7)
                 click_nivut_button("nivut.png")
-                time.sleep(1)
+                time.sleep(0.6)
                 click_home_button("home.png")
 
                 count_value = 0 if count == 0 else f"{total_before}/{count}"
