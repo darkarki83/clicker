@@ -280,8 +280,8 @@ if __name__ == "__main__":
     window_title = "ברוך הבא למרחב העבודה שלך"
     app_window = focus_and_click_center(window_title)
 
-    row_num_start = 2474
-    row_num_end = 2601
+    row_num_start = 1584
+    row_num_end = 2007
 
     if app_window:
         current_row = row_num_start
@@ -297,7 +297,7 @@ if __name__ == "__main__":
                 print("👤 Код клиента:", client_code)
                 print("👤 Имя клиента:", client_name)
 
-                click_on_image("client_folder.png")
+                click_on_image("client_folder_1.png")
                 time.sleep(1)
                 fill_client_number_by_label_image("client_label.png", client_code)
                 click_first_button("search.png")
@@ -305,7 +305,6 @@ if __name__ == "__main__":
                 #time.sleep(8)
                 #minimize_popup_window("360")
                 time.sleep(1)
-                #Sfocus_and_click_center("פרטי לקוח")
                 number = extract_main_phone_number()
                 time.sleep(1)
                 click_nivut_button("nivut2.png")
