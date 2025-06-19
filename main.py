@@ -8,6 +8,11 @@ import keyboard
 from pywinauto import Desktop, Application
 from sheets_helper import get_row, update_row
 pyautogui.FAILSAFE = False
+import requests
+import os
+from dotenv import load_dotenv
+
+load_dotenv()  # Загрузка из .env
 
 def focus_and_click_center(window_title_part):
     windows = Desktop(backend="uia").windows()
@@ -117,7 +122,7 @@ def minimize_popup_window(partial_title):
         print("⚠️ Ошибка при сворачивании окна:", e)
         return False
 
-def extract_main_phone_number():
+def extract_main_phone_number_and_address():
     print("📋 Копируем текст со страницы...")
 
     time.sleep(0.3)
@@ -139,15 +144,57 @@ def extract_main_phone_number():
     print("📑 Текст получен:\n", text)
 
     match = re.search(r"מספר טלפון ראשי:\s*(\d{2,3}-?\d{6,7})", text)
+    phone_number = None
     if match:
         phone_number = match.group(1).replace("-", "")
         print("📞 Найден номер:", phone_number)
-        return phone_number
     else:
         print("❌ Номер не найден.")
-        return None
+    # 🏠 Поиск адреса
+    address = ""
+    try:
+        lines = text.splitlines()
+        for i, line in enumerate(lines):
+            print(f"[LOG] Проверка строки {i}: {line}")
+            if "איש קשר לחיוב" in line:
+                print(f"✅ Найден блок 'איש קשר לחיוב' в строке {i}")
+                for j in range(i + 1, len(lines)):
+                    print(f"[LOG] Поиск 'שינוי' — строка {j}: {lines[j]}")
+                    if "שינוי" in lines[j]:
+                        print(f"✅ Найден 'שינוי' в строке {j}")
+                        addr_lines = []
+                        for k in range(j + 1, len(lines)):
+                            l = lines[k].strip()
+                            print(f"[LOG] Кандидат в адрес — строка {k}: '{l}'")
 
-def click_nivut_button(image_path="nivut.png", confidence=0.9, timeout=5):
+                            if not l:
+                                continue
+                            if any(kw in l for kw in ["שינוי", "איש קשר"]):
+                                continue
+                            if not any(char.isdigit() for char in l):
+                                print(f"⛔ Пропущено как имя (нет цифр): '{l}'")
+                                continue
+
+                            addr_lines.append(l)
+                            if len(addr_lines) >= 2:
+                                break
+
+                        address = " ".join(addr_lines)
+                        print(f"📦 Адресные строки: {addr_lines}")
+                        break
+                break
+    except Exception as e:
+        print(f"⚠️ Ошибка при извлечении адреса: {e}")
+
+    if address:
+        print("🏠 Найден адрес:", address)
+    else:
+        print("❌ Адрес не найден.")
+
+    return phone_number, address
+
+
+def click_nivut_button(image_path="png/nivut.png", confidence=0.9, timeout=5):
     print(f"🧭 Ищем кнопку ניווט по изображению: {image_path}")
     attempts = 0
     while attempts < 3:
@@ -168,7 +215,6 @@ def click_nivut_button(image_path="nivut.png", confidence=0.9, timeout=5):
             attempts += 1
     print("❌ Не удалось кликнуть по кнопке ניווט после 3 попыток.")
     return False
-
 
 def get_visible_lines_count():
     print("📋 Считаем количество видимых линий...")
@@ -247,7 +293,7 @@ def count_all_lines():
     print(f"📞 Уникальных линий найдено: {len(unique_numbers)}")
     return len(unique_numbers)
 
-def click_home_button(image_path="home.png", confidence=0.9, timeout=10):
+def click_home_button(image_path="png/home.png", confidence=0.9, timeout=10):
     print(f"🏠 Ищем кнопку בית по изображению: {image_path}")
     start_time = time.time()
 
@@ -276,12 +322,31 @@ def connect_to_app_and_print(app_window):
     except Exception as e:
         print(f"❌ Ошибка при подключении и выводе элементов: {e}")
 
+def send_telegram_message(message):
+    bot_token = os.getenv("TELEGRAM_BOT_TOKEN")
+    chat_id = os.getenv("TELEGRAM_CHAT_ID")
+
+    if not bot_token or not chat_id:
+        print("⛔ bot_token или chat_id не найдены в .env")
+        return
+
+    url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
+    payload = {
+        "chat_id": chat_id,
+        "text": message,
+        "parse_mode": "HTML"
+    }
+    try:
+        requests.post(url, data=payload)
+    except Exception as err:
+        print(f"⛔ Ошибка при отправке сообщения в Telegram: {err}")
+
 if __name__ == "__main__":
     window_title = "ברוך הבא למרחב העבודה שלך"
     app_window = focus_and_click_center(window_title)
 
-    row_num_start = 1584
-    row_num_end = 2007
+    row_num_start = 1919
+    row_num_end = 2000
 
     if app_window:
         current_row = row_num_start
@@ -302,10 +367,12 @@ if __name__ == "__main__":
                 fill_client_number_by_label_image("client_label.png", client_code)
                 click_first_button("search.png")
 
-                #time.sleep(8)
-                #minimize_popup_window("360")
                 time.sleep(1)
-                number = extract_main_phone_number()
+                number, address = extract_main_phone_number_and_address()
+
+                if not number:
+                    raise ValueError("❌ Не удалось получить номер телефона, повтор итерации...")
+
                 time.sleep(0.4)
                 click_nivut_button("nivut2.png")
 
@@ -323,22 +390,22 @@ if __name__ == "__main__":
                     status = ""
 
                 time.sleep(0.7)
-                click_nivut_button("nivut.png")
+                click_nivut_button("png/nivut.png")
                 time.sleep(0.6)
-                click_home_button("home.png")
+                click_home_button("png/home.png")
 
                 count_value = 0 if count == 0 else f"{total_before}/{count}"
-                update_row(current_row, status=status, number=number, count=count_value)
+                update_row(current_row, status=status, number=number, count=count_value, address=address)
 
                 current_row += 1  # ✅ Увеличиваем только если всё прошло успешно
 
             except Exception as e:
                 print(f"⚠️ Ошибка при обработке строки {current_row}, пробуем ещё раз...\n{e}")
                 #minimize_popup_window("360")
-                click_home_button("home.png")  # 🏠 Попытка вернуть интерфейс в исходное состояние
+                click_home_button("png/home.png")  # 🏠 Попытка вернуть интерфейс в исходное состояние
                 time.sleep(1)
-                click_nivut_button("nivut.png")
+                click_nivut_button("png/nivut.png")
                 time.sleep(1)
-                click_home_button("home.png")
+                click_home_button("png/home.png")
     else:
         print("⛔ Не удалось получить окно, остановка скрипта.")
