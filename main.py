@@ -74,7 +74,7 @@ if __name__ == "__main__":
                 click_first_button(IMG_SEARCH_BUTTON)
 
                 time.sleep(1)
-                number, address = extract_main_phone_number_and_address()
+                number, address, client_id = extract_main_phone_number_and_address()
 
                 if not number:
                     raise ValueError("❌ Failed to get phone number, retrying iteration...")
@@ -100,8 +100,7 @@ if __name__ == "__main__":
                 time.sleep(0.6)
                 click_home_button(IMG_HOME_BUTTON)
 
-                count_value = 0 if count == 0 else f"{total_before}/{count}"
-                update_row(current_row, status=status, number=number, count=count_value, address=address)
+                update_row( current_row, status=status, number=number, connect_line=total_before, disconnect_line=count, address=address, client_id=client_id )
 
                 current_row += 1  # ✅ Increment only if everything was successful
 
