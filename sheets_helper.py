@@ -14,11 +14,13 @@ def get_row(n):
     return row
 
 # Обновление строки (n) по колонкам: Статус (3), 25939582 (4), כמות קווים (5)
-def update_row(n, status=None, number=None, count=None):
+def update_row(n, status=None, number=None, count=None, address=None):
     if status is not None:
         sheet.update_cell(n, 3, status)
     if number is not None:
         sheet.update_cell(n, 4, number)
     if count is not None:
         sheet.update_cell(n, 5, count)
-    print(f"✅ Обновлена строка {n} → Статус: {status}, Номер: {number}, Кол-во: {count}")
+    if address is not None:
+        sheet.update_cell(n, 6, address)
+    print(f"✅ Обновлена строка {n} → Статус: {status}, Номер: {number}, Кол-во: {count}, Адрес: {address}")
