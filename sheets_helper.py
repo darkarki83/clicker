@@ -1,26 +1,29 @@
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 
-# Настройка доступа
+# Access setup
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
 creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)
 client = gspread.authorize(creds)
 sheet = client.open("דאטה נציגים - צוות אלירן").sheet1
 
-# Получение строки по номеру (n)
+# Get row by number (n)
 def get_row(n):
     row = sheet.row_values(n)
-    print(f"📥 Получена строка {n}: {row}")
+    print(f"📥 Row {n} fetched: {row}")
     return row
 
-# Обновление строки (n) по колонкам: Статус (3), 25939582 (4), כמות קווים (5)
-def update_row(n, status=None, number=None, count=None, address=None):
+def update_row(n, status=None, number=None, connect_line=None, disconnect_line=None, address=None, client_id=None):
     if status is not None:
         sheet.update_cell(n, 3, status)
     if number is not None:
         sheet.update_cell(n, 4, number)
-    if count is not None:
-        sheet.update_cell(n, 5, count)
+    if connect_line is not None:
+        sheet.update_cell(n, 5, connect_line)
+    if disconnect_line is not None:
+        sheet.update_cell(n, 6, disconnect_line)
     if address is not None:
-        sheet.update_cell(n, 6, address)
-    print(f"✅ Обновлена строка {n} → Статус: {status}, Номер: {number}, Кол-во: {count}, Адрес: {address}")
+        sheet.update_cell(n, 7, address)
+    if client_id is not None:
+        sheet.update_cell(n, 8, client_id)
+    print(f"✅ Row {n} updated → Status: {status}, Number: {number}, Connect Line: {connect_line}, Disconnect Line: {disconnect_line}, Address: {address}, Client ID: {client_id}")

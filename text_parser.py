@@ -5,20 +5,30 @@ import pyperclip
 import re
 
 PHONE_PATTERN = r"מספר טלפון ראשי:\s*(\d{2,3}-?\d{6,7})"
+CLIENT_ID_PATTERN = r"בעל הכרטיס זיהוי הלקוח:\s*(\d+)"
 
 def extract_main_phone_number_and_address():
     text = _copy_page_text()
 
     phone_number = _extract_phone_number(text)
     address = _safe_extract_address(text)
+    client_id = _extract_client_id(text)
 
     if address:
         print("🏠 Найден адрес:", address)
     else:
         print("❌ Адрес не найден.")
 
-    return phone_number, address
+    return phone_number, address, client_id 
 
+def _extract_client_id(text):
+    match = re.search(CLIENT_ID_PATTERN, text)
+    if match:
+        client_id = match.group(1)
+        print("🆔 Найден идентификатор клиента:", client_id)
+        return client_id
+    print("❌ Идентификатор клиента не найден.")
+    return None
 
 def _copy_page_text():
     time.sleep(0.3)
