@@ -125,7 +125,7 @@ if __name__ == "__main__":
                 number  = None
                 address = None
                 client_id = None
-                current_row += 1  # ✅ Increment only if everything was successful
+                current_row += 1
 
             except Exception as e:
                 print(f"⚠️ Error processing row {current_row}, trying again...\n{e}")
