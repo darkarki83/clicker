@@ -19,6 +19,10 @@ def extract_main_phone_number_and_address():
     else:
         print("❌ Адрес не найден.")
 
+    print(f"phone number: {phone_number}")
+    print(f"address: {address}")
+    print(f"client_id: {client_id}")
+
     return phone_number, address, client_id 
 
 def _extract_client_id(text):
@@ -38,6 +42,8 @@ def _copy_page_text():
     time.sleep(0.3)
     keyboard.press_and_release('ctrl+c')
     time.sleep(0.3)
+    pyautogui.click(x=100, y=100)  # 👈 клик в пустую область, чтобы снять выделение
+    time.sleep(0.2)
     return pyperclip.paste()
 
 
@@ -74,7 +80,6 @@ def _extract_address_from_lines(lines):
 
 def _find_address_block(lines):
     for i, line in enumerate(lines):
-        print(f"[LOG] Проверка строки {i}: {line}")
         if "איש קשר לחיוב" in line:
             print(f"✅ Найден блок 'איש קשר לחיוב' в строке {i}")
             return i
@@ -83,7 +88,6 @@ def _find_address_block(lines):
 
 def _find_shinui_index(lines, start):
     for j in range(start + 1, len(lines)):
-        print(f"[LOG] Поиск 'שינוי' — строка {j}: {lines[j]}")
         if "שינוי" in lines[j]:
             print(f"✅ Найден 'שינוי' в строке {j}")
             return j
@@ -94,7 +98,6 @@ def _extract_address(lines, start):
     addr_lines = []
     for k in range(start + 1, len(lines)):
         l = lines[k].strip()
-        print(f"[LOG] Кандидат в адрес — строка {k}: '{l}'")
 
         if not l:
             continue

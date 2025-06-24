@@ -19,9 +19,9 @@ def update_row(n, status=None, number=None, connect_line=None, disconnect_line=N
     if number is not None:
         sheet.update_cell(n, 4, number)
     if connect_line is not None:
-        sheet.update_cell(n, 5, connect_line)
+        sheet.update_cell(n, 6, connect_line)
     if disconnect_line is not None:
-        sheet.update_cell(n, 6, disconnect_line)
+        sheet.update_cell(n, 5, disconnect_line)
     if address is not None:
         sheet.update_cell(n, 7, address)
     if client_id is not None:
