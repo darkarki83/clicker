@@ -21,12 +21,12 @@ IMG_HOME_BUTTON = "png/home.png"
 IMG_CHECKBOX_EMPTY = "png/checkbox_empty.png"
 
 # === Text Constants ===
-TITLE_MAIN_WINDOW = "Welcome to your workspace"
-CONNECTED_STATUS_TEXT = "Client Connected"
+TITLE_MAIN_WINDOW = "Internet Explorer"
+CONNECTED_STATUS_TEXT = "לקוח מחובר"
 
 # === Row Range ===
-ROW_NUM_START = 1919
-ROW_NUM_END = 2000
+ROW_NUM_START = 1193
+ROW_NUM_END = 1252
 
 def send_telegram_message(message):
     bot_token = os.getenv("TELEGRAM_BOT_TOKEN")
@@ -56,6 +56,9 @@ if __name__ == "__main__":
 
     if app_window:
         current_row = row_num_start
+
+        previous_num = ""
+        flag = False
         while current_row <= row_num_end:
             print(f"\n📄 Processing row {current_row}...")
 
@@ -71,6 +74,7 @@ if __name__ == "__main__":
                 click_on_image(IMG_CLIENT_FOLDER)
                 time.sleep(1)
                 fill_client_number_by_label_image(IMG_CLIENT_LABEL, client_code)
+                time.sleep(0.5)
                 click_first_button(IMG_SEARCH_BUTTON)
 
                 time.sleep(1)
@@ -79,29 +83,48 @@ if __name__ == "__main__":
                 if not number:
                     raise ValueError("❌ Failed to get phone number, retrying iteration...")
 
-                time.sleep(0.4)
+                if number == previous_num:
+                    if not flag:
+                        flag = True
+                        print("🔁 Повтор номера — пробуем заново.")
+                        raise ValueError("❌ Повтор номера — пробуем заново.")
+                    else:
+                        print("⚠️ Повтор снова — пропускаем строку.")
+                        flag = False
+                        current_row += 1
+                        continue
+                else:
+                    flag = False
+                    previous_num = number
+
+                time.sleep(1)
                 click_nivut_button(IMG_NIVUT_SECOND)
 
-                total_before = get_visible_lines_count()
+                connect_line = get_visible_lines_count()
 
-                if total_before > 2:
+                print(f"Connect_line {connect_line}")
+
+                if connect_line > 2:
                     status = CONNECTED_STATUS_TEXT
-                    count = 0
                 else:
-                    click_show_canceled_checkbox()
-                    time.sleep(0.5)
-                    total_after = count_all_lines()
-                    print(f"⚠️ total_after {total_after}")
-                    count = total_after - total_before
                     status = ""
+
+                click_show_canceled_checkbox()
+                time.sleep(0.5)
+                all_lines = count_all_lines()
+                print(f"⚠️ total_after {all_lines}")
+                disconnect_line = all_lines - connect_line
 
                 time.sleep(0.7)
                 click_nivut_button(IMG_NIVUT_BUTTON)
                 time.sleep(0.6)
                 click_home_button(IMG_HOME_BUTTON)
 
-                update_row( current_row, status=status, number=number, connect_line=total_before, disconnect_line=count, address=address, client_id=client_id )
+                update_row( current_row, status=status, number=number, connect_line=connect_line , disconnect_line=disconnect_line , address=address, client_id=client_id )
 
+                number  = None
+                address = None
+                client_id = None
                 current_row += 1  # ✅ Increment only if everything was successful
 
             except Exception as e:
