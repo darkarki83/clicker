@@ -28,6 +28,9 @@ CONNECTED_STATUS_TEXT = "לקוח מחובר"
 ROW_NUM_START = 1513
 ROW_NUM_END = 2500
 
+# === Retry Limits ===
+MAX_PHONE_NOT_FOUND_ATTEMPTS = 3
+
 def send_telegram_message(message):
     bot_token = os.getenv("TELEGRAM_BOT_TOKEN")
     chat_id = os.getenv("TELEGRAM_CHAT_ID")
@@ -59,6 +62,7 @@ if __name__ == "__main__":
 
         previous_num = ""
         flag = False
+        phone_not_found_attempts = 0
         while current_row <= row_num_end:
             print(f"\n📄 Processing row {current_row}...")
 
@@ -81,7 +85,16 @@ if __name__ == "__main__":
                 number, address, client_id = extract_main_phone_number_and_address()
 
                 if not number:
+                    phone_not_found_attempts += 1
+                    if phone_not_found_attempts >= MAX_PHONE_NOT_FOUND_ATTEMPTS:
+                        print(f"⚠️ Phone not found after {MAX_PHONE_NOT_FOUND_ATTEMPTS} attempts — skipping row.")
+                        phone_not_found_attempts = 0
+                        click_home_button(IMG_HOME_BUTTON)
+                        current_row += 1
+                        continue
                     raise ValueError("❌ Failed to get phone number, retrying iteration...")
+
+                phone_not_found_attempts = 0
 
                 if number == previous_num:
                     if not flag:

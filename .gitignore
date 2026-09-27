@@ -17,6 +17,11 @@ env.bak/
 # PyCharm
 .idea/
 
+# Secrets / credentials
+credentials.json
+credentials_2.json
+*.credentials.json
+
 # VS Code
 .vscode/
 
