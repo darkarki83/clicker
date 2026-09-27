@@ -25,8 +25,8 @@ TITLE_MAIN_WINDOW = "Internet Explorer"
 CONNECTED_STATUS_TEXT = "לקוח מחובר"
 
 # === Row Range ===
-ROW_NUM_START = 1193
-ROW_NUM_END = 1252
+ROW_NUM_START = 1513
+ROW_NUM_END = 2500
 
 def send_telegram_message(message):
     bot_token = os.getenv("TELEGRAM_BOT_TOKEN")

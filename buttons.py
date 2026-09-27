@@ -57,7 +57,7 @@ def click_first_button(image_path, confidence=0.9, timeout=10):
     print(f"❌ Button not found within {timeout} seconds.")
     return False
 
-def click_nivut_button(image_path=IMG_NIVUT_BUTTON, confidence=0.9, timeout=5):
+def click_nivut_button(image_path=IMG_NIVUT_BUTTON, confidence=0.8, timeout=5):
     print(f"🧭 Searching for the navigation button by image: {image_path}")
     attempts = 0
     while attempts < 3:
