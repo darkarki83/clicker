@@ -1,6 +1,6 @@
 import time
 import pyautogui
-from buttons import click_first_button, click_home_button, click_nivut_button, click_on_image, click_show_canceled_checkbox, count_all_lines, fill_client_number_by_label_image, get_visible_lines_count
+from buttons import click_first_button, click_home_button, click_nivut_button, click_on_image, click_show_canceled_checkbox, count_all_lines, dismiss_subscriber_limit_warning, fill_client_number_by_label_image, get_visible_lines_count, is_subscriber_limit_warning_present
 from pywinauto import Desktop, Application
 from sheets_helper import get_row, update_row
 from ui_helper import focus_and_click_center
@@ -124,6 +124,14 @@ if __name__ == "__main__":
 
                 click_show_canceled_checkbox()
                 time.sleep(0.5)
+
+                if is_subscriber_limit_warning_present():
+                    print(f"⚠️ More than 100 subscribers on row {current_row} — skipping row.")
+                    dismiss_subscriber_limit_warning()
+                    click_home_button(IMG_HOME_BUTTON)
+                    current_row += 1
+                    continue
+
                 all_lines = count_all_lines()
                 print(f"⚠️ total_after {all_lines}")
                 disconnect_line = all_lines - connect_line

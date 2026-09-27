@@ -3,6 +3,18 @@ import time, pyautogui, pyperclip, keyboard, re
 IMG_NIVUT_BUTTON = "png/nivut.png"
 IMG_CHECKBOX_EMPTY = "png/checkbox_empty.png"
 IMG_HOME_BUTTON = "png/home.png"
+IMG_SUBSCRIBER_LIMIT_WARNING = "png/subscriber_limit_warning.png"
+
+def is_subscriber_limit_warning_present(confidence=0.8):
+    try:
+        return pyautogui.locateOnScreen(IMG_SUBSCRIBER_LIMIT_WARNING, confidence=confidence) is not None
+    except Exception:
+        return False
+
+def dismiss_subscriber_limit_warning():
+    print("⚠️ Subscriber limit warning detected (>100 subscribers) — going back.")
+    keyboard.press_and_release('alt+left')
+    time.sleep(1)
 
 def click_on_image(image_path, confidence=0.8, timeout=10):
     print(f"🔍 Searching for image: {image_path}")
